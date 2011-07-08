@@ -1,7 +1,7 @@
 source :rubygems
-gem 'swineherd', '>=0.0.4'
+gem 'swineherd', '>= 0.0.4'
 gem 'configliere', '0.4.6'
-gem 'rake', '0.8.7'
+gem 'rake', '>= 0.8.7'
 
 group :development do
   gem "shoulda", ">= 0"
