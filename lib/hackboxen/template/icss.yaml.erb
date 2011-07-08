@@ -1,0 +1,125 @@
+---
+namespace: <%= namespace %>
+protocol: <%= protocol %>
+
+data_asset:
+- name: <%= protocol %>_data_asset
+  location: <%= protocol %>_data.tsv
+  type: <%= protocol %>_data_record
+  
+<% if targets.include? 'apeyeye' %>
+code_asset:
+- name: <%= protocol %>_code_asset
+  location: code/<%= protocol %>_endpoint.rb
+
+messages:
+  <%= protocol %>_search: # An example message name
+    request:
+    - name: <%= protocol %>_search_request
+      type: <%= protocol %>_search_request
+    response: <%= protocol %>_search_response_record
+    doc:  A clear description of how to interact with the api using this message
+    samples:
+    - request:  # A sample request using this message's defined request parameters below
+      - param_1_name: value
+        param_2_name: value
+        param_3_name: value
+        
+<% end %>
+targets:
+<% targets.each do |target| %>
+<% case target %>
+<% when 'catalog' %>
+  catalog:
+  - name: <%= protocol %>_catalog_entry
+    title: The display title of this catalog entry
+    description: -|
+      A very detailed description of the entry goes here. Ensure proper formatting and clear concise information about the dataset as this field will be the main visibility point of the dataset page.
+    tags:
+    - an
+    - array
+    - of
+    - single-word
+    - tags
+    packages: # You only need this if your dataset will be available for bulk download
+    - data_assets:
+      - <%= protocol %>_data_asset
+<% if targets.include? 'apeyeye' %>
+    messages:
+    - an array of message names # needs to match the messages entries up above
+<% end %>
+<% when 'apeyeye' %>
+  apeyeye:
+  - code_assets:
+    - <%= protocol %>_code_asset
+<% when 'hbase' %>
+  hbase:
+  # When your data has the following schema (row_key, column_family, column_name, column_value), use
+  - table_name: The hbase table to write data into
+    column_families: An array of column families to write data to
+    loader: fourple_loader
+    data_assets
+    - <%= protocol %>_data_asset
+  # When your data is simply a tsv record, use these hashes instead
+  - table_name: The hbase table to write data into
+    column_family: A single column family to write data to
+    id_field: The name of the field to use as the row key when indexing
+    loader: tsv_loader
+    data_assets:
+     - <%= protocol %>_data_asset    
+<% when 'geo_index' %>
+  geo_index:
+  - table_name: The hbase table name # must be one of geo_location_infochimps_place, _path or _event
+    min_zoom: An integer specifying the minimum zoom level
+    max_zoom: An integer specifying the maximum zoom level
+    chars_per_page: An integer number of approximately how many characters to display per page
+    sort_field: The field within the Properties hash to sort by. use -1 if no field is sorted by
+    data_assets:
+    - <%= protocol %>_data_asset
+<% when 'elasticsearch' %>
+  elasticsearch:
+  - index_name: The name of the index to write data into
+    object_type: The object type to be created in ElasticSearch
+    id_field: Optionally used to define the field to id by during indexing
+    loader: Either tsv_loader or json_loader based on your data type
+    data_assets:
+    - <%= protocol %>_data_asset
+<% when 'mysql' %>
+  mysql:
+  - database: The name of the MySQL database to be loaded into
+    table_name: The name of the corresponding table to be loaded into
+    data_assets:
+    - <%= protocol %>_data_asset
+<% end %>
+<% end %>
+
+# Any non-basic types declared above must be defined explicitly under this type heading
+types:
+- name: <%= protocol %>_data_record
+  type: record
+  doc: Description of the <%= protocol %>_data_record type
+  fields:
+  - name: A name for one of the fields in the <%= protocol %>_data_record type
+    doc: A description for this field
+    type: If this not a primitive type, make sure you explicitly define it below
+  - name: A name for one of the fields in the <%= protocol %>_data_record type
+    doc: A description for this field
+    type: If this not a primitive type, make sure you explicitly define it below
+    
+<% if targets.include? 'apeyeye' %>
+- name: <%= protocol %>_search_request
+  type: record
+  doc: Description of the <%= protocol %>_search_request type
+  fields:
+  - name: A name for one of the fields in the <%= protocol %>_search_request type
+    doc: A description for this field
+    type: If this not a primitive type, make sure you explicitly define it below
+  
+- name: <%= protocol %>_search_response_record
+  type: record
+  doc: Description of the <%= protocol %>_search_response_record type
+  fields:
+  - name: A name for one of the fields in the <%= protocol %>_search_response_record type
+    doc: A description for this field
+    type: If this not a primitive type, make sure you explicitly define it below
+<% end %>

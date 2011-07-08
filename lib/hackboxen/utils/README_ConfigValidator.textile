@@ -1,0 +1,63 @@
+h1.  Execution Environment Validator
+
+Hackboxen usually require resources in their execution environment. If the @WorkingConfig@ for a hackbox contains the key @requires@, then its value must be a hash that declares its requirements.  This declaration takes the form of a tree of hashes where each terminal keys specifies a particular requirement and the value associated with is key is a configuration specifier for that requirement.
+
+h2. Requirement Values
+
+The value for each key may be one of a:
+
+* **Null:** This requirement must exist, but exact configuration does not need to be precisely stated.
+* **String:** This requirement must exist and its configuration (e.g. version constraint, location) is specified in the string.
+* **Array Of Strings:** This requirement has multiple configuration constraints (e.g. min/max version, access to multiple mysql databases)
+* **Hash:** The key is a category rather than an actual requirement.  The value contains actual requirements or subcategories.
+
+The meaning of strings as values is defined by its key. In general, version strings should be specified in Bundler Gemfile syntax. Currently, the evaluator does not actually interpret value strings-- it only checks for the existence of keys.  However, these values may be needed by external tools or systems and so should be specified if a value other than the default is required.  
+
+h2. Schema
+
+The following is the current schema for the top of the @requires@ tree (default versions in parentheses):
+
+* **platform:** The processing environment for this hackbox
+** *os:* One of "linux", "osx", "win".  ("linux")
+** *hardware:*  One of "x86", "x86_64" ("x86")
+* **language:**  Languages and/or their libraries  
+** **ruby:**  The @RVM@ ruby version needed by this hackbox ("1.8.7")
+** **jars:**  If the ruby version is a jruby version, then the needed external jars should be named in this hash.
+** **python:** The minimum python version needed by this hackbox ("2.6")
+* **processing:**  These are data processing tools and resources that need to be available
+** **pig:**:  Apache Pig is installed and configured.
+** **wukong:**:  Wukong Hadoop streaming processor is installed and configured.
+* **shelltools:**  A reference to command line tools that must be callable via a shell in the default @PATH@.
+* **datastore:**  Datastores that must be accessible by this hackbox.  If the value for a datastore is @null@, then the default store is needed.  If the value is a string, then this is the "name" of the required store.  If the value is an array of strings, then all of the named stores are required.
+** **mysql:**  
+** **elasticsearch:**
+** **hbase:**
+* **filesystems:** These are the non-local filesystems that the hackbox needs and will access through the filesystem abstraction in swineherd.  Local filesystems are always expected to be available.
+** **hdfs:**
+** **s3:**
+
+h2. Example
+
+An example YAML @requires@ specification should look something like:
+
+<pre><code>
+requires:
+  language:
+    ruby: 1.9
+    python: 2.6
+    jars:
+      xerces: 4.5    
+  shelltools:
+    wget: null
+    curl: null
+    tar: null
+    gcc: null
+  datastore:
+    mysql: null
+    hbase: null
+</code></pre>
+
+h2. Evaluation
+
+To be implemented.
+

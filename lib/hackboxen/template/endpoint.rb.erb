@@ -1,0 +1,39 @@
+<% format = "" %>
+<% indent = 0 %>
+<% entries = namespace.split('.') << protocol %>
+<% entries.each_with_index do |part,count| %>
+  <% indent = count %>
+  <% indent.times { |c| format += "  " } %>
+  <% if entries[count] == entries.last %>
+    <% format += "class #{part.split("_").map { |p| p.capitalize }.join("")}Endpoint < Endpoint\n\n" %>
+  <% else %>
+    <% format += "module #{part.split("_").map { |p| p.capitalize }.join("")}\n" %>
+  <% end %>
+<% end %>
+<% indent += 1 %>
+<% targets.each do |target| %>
+  <% case target %>
+  <% when 'mysql' %>
+    <% indent.times { |c| format += "  " } %>
+    <% format += "extend Connection::MysqlConnection\n" %>
+  <% when 'hbase' %>
+    <% indent.times { |c| format += "  " } %>  
+    <% format += "extend Connection::HbaseConnection\n" %>    
+  <% when 'geo_index' %>
+    <% indent.times { |c| format += "  " } %>  
+    <% format += "extend Connection::HbaseGeoConnection\n" %> 
+  <% when 'elasticsearch' %>
+    <% indent.times { |c| format += "  " } %>  
+    <% format += "extend Connection::ElasticSearchConnection\n" %>
+  <% end %>
+<% end %>
+<% format += "\n" %>
+<% indent.times { |c| format += "  " } %>
+<% format += "Put your endpoint code here:\n\n" %>
+<% indent -= 1 %>
+<% while indent >= 0 %>
+  <% indent.times { |c| format += "  " } %>
+  <% format += "end\n" %>
+  <% indent -= 1 %>
+<% end %>
+<%= format %>

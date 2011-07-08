@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Figure out a bunch of paths
+RUNNER_SCRIPT=`readlink -f $0`
+HACKBOXEN_LIB_RELATIVE=`dirname ${RUNNER_SCRIPT}`/..
+HACKBOXEN_LIB=`readlink -f ${HACKBOXEN_LIB_RELATIVE}`
+
+# Set some defaults
+DEFAULT_RUBY_VERSION=ruby-1.8.7
+export TERM=dumb
+
+# Ensure hackbox directory is given.
+HACKBOX_DIR_RELATIVE="$1";
+if [ -z "$HACKBOX_DIR_RELATIVE" ]; then
+    echo "Must specify the path to a hackbox to run";
+    exit 1;
+fi
+HACKBOX_DIR=`readlink -f ${HACKBOX_DIR_RELATIVE}`
+
+# Ensure hackbox directory exists.
+if [ ! -d "$HACKBOX_DIR" ]; then
+    echo "Hackbox directory $HACKBOX_DIR does not exist";
+    exit 1;
+fi
+
+# Ensure config file exists
+HACKBOX_CONFIG="${HACKBOX_DIR}/config/config.yaml"
+if [ ! -e "$HACKBOX_CONFIG" ]; then
+    echo "Hackbox directory ${HACKBOX_DIR} does not contain a config/config.yaml file";
+    exit 1;
+fi
+
+# Find Ruby version
+REQUIRED_RUBY_VERSION=`ruby -r yaml -e "puts YAML.load_file('${HACKBOX_CONFIG}')['requires']['language']['ruby'].to_s.strip rescue nil"`
+if [ -z "$REQUIRED_RUBY_VERSION" ]; then
+    REQUIRED_RUBY_VERSION=$DEFAULT_RUBY_VERSION;
+fi
+
+# Source RVM and use chosen RVM Ruby version
+if [ -s /usr/local/rvm/scripts/rvm ] || [ -s ~/.rvm/bin/rvm ] ; then
+    [[ -s "/usr/local/rvm/scripts/rvm" ]] && . "/usr/local/rvm/scripts/rvm"
+    [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+    # RVM defines RUBY_VERSION when it its invoked
+    if rvm use $REQUIRED_RUBY_VERSION; then
+	echo "Now running ${RUBY_VERSION}";
+    else
+	echo "Could not run ${RUBY_VERSION}";
+	exit 1;
+    fi
+fi
+
+# Symlink to Hackboxen Gemfile if necessary
+HACKBOX_GEMFILE="${HACKBOX_DIR}/Gemfile"
+DEFAULT_GEMFILE="${HACKBOXEN_LIB}/lib/gemfiles/Gemfile.${REQUIRED_RUBY_VERSION}.default"
+if [ ! -e "$HACKBOX_GEMFILE" ]; then
+    ln -s $DEFAULT_GEMFILE $HACKBOX_GEMFILE
+fi
+
+# Export the correct Gemfile for bundler to find once Ruby starts
+export BUNDLE_GEMFILE="$HACKBOX_GEMFILE"
+
+# Change to Hackbox Dir
+cd $HACKBOX_DIR
+
+# Remove Gemfile.lock if it exists
+# if [ -e Gemfile.lock ]; then
+#     rm Gemfile.lock;
+# fi
+
+# Something is setting RUBYOPT causing havoc w/Bundler.
+unset RUBYOPT;
+
+# Bundle install all gems into the vendor directory inside this
+# hackbox.
+if bundle install --path vendor; then
+    echo "Bundle installed";
+else
+    echo "Could not bundle install";
+    exit 1;
+fi
+
+# Make sure hackboxen/lib is on RUBYLIB
+export RUBYLIB=${HACKBOXEN_LIB}/lib:${RUBYLIB}
+
+# Run hackbox and add a sentinel at the end
+if bundle exec rake --trace; then
+    echo "<-- SUCCESSFULLY RAN HACKBOX -->";
+else
+    echo "<-- FAILED TO RUN HACKBOX -->";
+    exit 1;
+fi
+
+exit 0;

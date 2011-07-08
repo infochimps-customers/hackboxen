@@ -1,0 +1,31 @@
+require 'hackboxen'
+#
+# When you require 'hackboxen' the library establishes where the current hackbox directory
+# is located and loads all required tasks in order for your hackbox to run to completion
+#
+
+task :get_data do
+  #
+  # This task is intended to pull data down from a source. Examples include
+  # the web, an ftp server, and Amazon's simple storage service (s3). As much
+  # as possible this should be the only task that interacts with the 'outside'
+  # world.
+  #
+end
+
+task :default => ['hb:create_working_config', 'hb:icss', 'hb:endoint', :get_data, 'hb:init']
+#
+# hb:create_working_config makes establishes all required directories and serializes out all
+# configuration options into env/working_config.json. This task is required.
+#
+# hb:icss copies over the icss.yaml file if it exists into its proper place in fixd/data. This
+# task is not required.
+#
+# hb:endpoint copies over the endpoint.rb file if it exists into its proper place in fixd/code.
+# This task is not required.
+#
+# :get_data is explained above. This task (and any other dependent tasks you wish to write) are
+# expected only to pull data into the ripd directory, nothing more. This task is required.
+#
+# hb:init executes the main file located in engine. This task is required.
+#

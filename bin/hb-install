@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'hackboxen/tasks/install'
+
+Rake::Task[:install].invoke

@@ -1,0 +1,50 @@
+h3. Deprecations/Changes
+
+* HackBoxen::Paths methods have changed.
+
+* You no longer need to include the line @HACKBOX_DIR = File.basename(__FILE__)@ at the top of the Rakefile.
+
+* @Settings@ as used by the Rakefile is now @WorkingConfig@.
+
+* @working_environment@ is now only available in the JSON flavor and the @env/@ directory has moved to the same level as @fixd/@.
+
+* Output data and Icss need to end up in @fixd/data/@.
+
+* @rake scaffold@ is no longer the command to build a hackbox.
+
+* Config files are no longer read as a directory, and also no longer read from the dataroot as the @config/@ output directory is no longer being created.
+
+* Much old code was refactored or removed.
+
+h3. New Functionality (version 0.1.0)
+
+* Default Hackboxen paths can be accessed by using @path_to(:fixd_dir)@. See HackBoxen::Paths for using/adding others.
+
+* You may now @require 'hackboxen' anywhere and it will recognize if you are in a hackbox directory (or not) and allow you appropriate access to HackBoxen methods.
+
+* Tasks for moving icss and endpoint code have been added. Include @'hb:icss'@ and @'hb:endpoint'@ in the default Rakefile task if you want to use them.
+
+* @filesystem_scheme@ now defaults to the local filesystem if not specified in the @config.yaml@
+
+* A logging helper has been added. Use @include HackBoxen::Logging@ and then @logs_to STDOUT, 'file'@ inside of a class to access an instance variable @@log@ that contains a formatted log4r Logger.
+
+* A binary executable has been added, @hb-scaffold@ that can be run from anywhere and is designed to replace the rake task.
+
+h3. Version 0.1.1
+
+* Make Hackboxen a gem. This will require the separation of the actual hackbox code from the hackboxen library (implemented) and the creation of a coderoot to connect the hackbox library with the other code (implemented).
+
+* When Hackboxen is a gem, its version can be added to the requires hash in a hackbox @config.yaml@ so we can keep track of potentially breaking changes to legacy code.
+
+* The separation (completely) of a @config.yaml@ from an @icss.yaml@. (implemented)
+
+* A hackbox __name__ is now separate from a dataset __protocol__. Namespaces are still shared for organizational purposes, but a protocol directory is no longer created for the output. 
+
+h3. Still Needing
+
+* Full spec coverage for the hackboxen library.
+
+* Implementation of @'hb:mini'@ and @ConfigValidator@. Some of this code is written, but it needs to be fleshed out and decided upon.
+
+
+

@@ -1,0 +1,20 @@
+source :rubygems                                                                                                   
+
+gem 'rake'                                                                                                                   
+gem 'json'                                                                                                         
+gem 'extlib'                                                                                                       
+gem 'nokogiri'                                                                                                     
+gem 'ken'                                                                                                          
+gem 'shapelib'                                                                                                     
+gem 'mechanize'                                                                                                    
+gem 'right_aws'                                                                                                    
+gem 'rgeo'                                                                                                         
+gem 'configliere'                                                                                                  
+gem 'activemodel'
+gem 'yajl-ruby'
+gem 'sqlite3-ruby'
+gem 'swineherd'
+gem 'gorillib'
+gem 'icss'
+gem 'fastercsv'
+

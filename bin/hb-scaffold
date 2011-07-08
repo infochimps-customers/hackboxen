@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'hackboxen/template'
+require 'hackboxen/tasks/scaffold'
+
+Rake::Task[:scaffold].invoke

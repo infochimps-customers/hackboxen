@@ -1,0 +1,194 @@
+h1. Hackboxen
+
+The Hackboxen library is designed to encapsulate data collecting and processing tasks into simple and easy to implement packages.
+
+Any singular hackbox has the following two parts: 
+
+* An engine, which contains configuration information and data processing code.
+* An output directory, which will contain the fully processed data along with a descriptive schema. This directory may be either local or remote (e.g. S3/HDFS)
+
+A hackbox **dataset** is defined by a @namespace@ and a @protocol@. The @namespace@ must be dot(.) separated and both the @namespace@ and @protocol@ may contain only lowercase letters, numbers and underscores.
+
+h2. Hackbox Engine
+
+A hackbox engine contains:
+
+* @Rakefile@: **(required)** Used to read and combine all the sources of config metadata and execute @main@.
+* @Gemfile@: **(optional)** A list of gems necessary for this hackbox to run. Processed automatically by "Bundler":https://github.com/carlhuda/bundler.
+* @config/@: **(required)** A subdirectory containing:
+** @config.yaml@ **(required)** A hackbox specific default configuration YAML file.
+** @protocol.icss.yaml@ **(optional)** An "Icss":http://github.com/infochimps/icss schema file describing the output data and publishing targets.
+* @engine/@: **(required)** A subdirectory containing:
+** @main@: **(required)** An executable data processing file. This may be written in any language.
+** **(optional)** Any other executable and support files. There is no restriction on language and complexity.
+
+The hackbox engine lives in the @coderoot@ directory specified by your configuration settings. An example hackbox engine directory structure:
+
+<pre><code>coderoot
+└── language
+    └── corpora
+        └── word_freq
+            └── bnc
+                ├── config
+                │   ├── config.yaml
+                │   └── bnc.icss.yaml                 
+                ├── engine
+                │   ├── main
+                │   └── bnc_endpoint.rb
+                └── Rakefile
+</code></pre>
+
+h2. Hackbox Output Directory
+
+The hackbox output directory is where all of the data that a hackbox acquires, reads, or creates lives. The location of the data directory is determind by the @dataroot@ variable specified in your configuration settings. An example hackbox output directory structure:
+
+<pre><code>dataroot
+└── language
+    └── corpora
+        └── word_freq
+                ├── fixd
+                │   ├── code
+                │   │   └── bnc_endpoint.rb
+                │   └── data
+                │       └── bnc_fixd_data.tsv
+                ├── log
+                │   └── bnc_run_0.log
+                ├── rawd
+                │   └── bnc_data_in_process
+                ├── ripd
+                │   └── bnc_download.zip
+                └── env
+                    └── working_environment.json         
+</code></pre>
+
+* @fixd/@: **(required)** See the output interface described below.
+* @log/@:  **(optional)** All logging from a hackbox run goes here.
+* @rawd/@: **(optional)** This will contain all intermediate data processing outputs.
+* @ripd/@: **(required)** This will contain virginal downloaded source data adhering to the directory structure from which it was pulled.
+* @env/@:  **(required)** This directory contains a file describing the environment in which the hackbox was run.
+** @working_environment.json@: **(required)** All runtime config metadata used to generate the schema and output data.
+
+Engine and output directories are generally created dynamically and are not meant to be archival.
+
+h3. Output Interface (fixd/)
+
+@fixd/@ is the final output directory and contains the following:
+
+* @protocol.icss.json@: **(required)** An "Icss":http://github.com/infochimps/icss schema file describing its respective dataset. 
+* @code/@: **(optional)** A directory containing the code assets described in the icss. 
+* @data/@: **(required)** A directory containing a single dataset or subdirectories named for each dataset. Each contains:
+** **(required)** One or more data files that collectively adhere to the schema of this dataset.
+
+h2. Hackbox Configuration
+
+Hackbox configuration may be one or more files in YAML format and, optionally, the command line. Configuration will be read in using "Configliere":https://github.com/mrflip/configliere in the following order:
+
+* @/etc/hackbox/hackbox.yaml@: Machine-wide config.
+* @~/.hackbox/hackbox.yaml@: Install specific config.
+* @config/config.yaml@: Hackbox specific config.
+* @rake task -- --args=@: Command line arguments.
+
+Later sources on this list overwrite earlier sources. The combined configuration metadata is serialized out as JSON in the @fixd/env@ directory as @working_config.json@. This is done before any other code executes in order for a hackbox to be able to read in this file if necessary.
+
+h1. Getting Started
+
+Here are the general guidelines for creating your own hackbox.
+
+h3. Install Hackboxen
+
+<pre><code>sudo gem install hackboxen
+</code></pre>
+
+This will create a @.hackbox@ directory with a @hackbox.yaml@ file that contains default values for @coderoot@, @dataroot@, @s3_filesystem@, @os@, and @machine@. The @hb-install@ command has optional arguments @--dataroot=@, @--coderoot=@.
+
+<pre><code>hb-install # optionally: hb-install --dataroot=/data/hb --coderoot=/code/hb
+</code></pre>
+
+A default @hackbox.yaml@ file:
+
+<pre><code>---
+coderoot: /code/hb/
+dataroot: /data/hb/
+s3_filesystem:
+  access_key:
+  secret_key:
+  mini_bucket:
+requires:
+  machine: x86_64
+  os: darwin
+</code></pre>
+
+h3. Hackboxen Dependencies
+
+The Hackboxen library depends on the following gems: "configliere":http://github.com/mrflip/configliere, "icss":http://github.com/infochimps/icss, "swineherd":http://github.com/ganglion/swineherd, and "rake":http://github.com/jimweirich/rake. 
+
+h3. Creating a Hackbox
+
+Hackboxen comes with scaffold task that creates a template hackbox for you. Required arguments are @--namespace=@ and @--protocol=@. Optional arguments are @--targets=@.
+
+<pre><code>hb-scaffold --namespace=foo.bar.baz --protocol=qux --targets=catalog,mysql
+</code></pre>
+
+This will create the following directories and files:
+
+<pre><code>coderoot
+└── foo
+    └── bar
+        └── baz
+            └── qux
+                ├── config
+                │   ├── config.yaml
+                │   └── qux.icss.yaml                 
+                ├── engine
+                │   ├── main
+                │   └── qux_endpoint.rb
+                └── Rakefile
+</code></pre>
+
+h3. Running a hackbox
+
+Externally, the execution of a hackbox appears as:
+
+* A @Rakefile@ is run with @rake@ from the shell with one of the following targets:
+** @get_data@: Performs only the ingest step. The input data (in @ripd@/@rawd@) and any required metadata should exist after this step.
+** @default@: Performs the processing step, @:get_data@, and executes the @main@ file.
+
+Execution Results:
+
+* If there is no failure, @rake@ can be silent.
+* If there is a failure, @rake@ ends with a thrown exception
+* After a successful execution, the complete output interface (@fixd@) must exist, with no additional interaction outside of @rake@.
+
+The rough steps of hackbox internal execution are:
+
+* The configuration sources (command line and files) are read and combined.
+* The output directory structure (@fixd@) is created.
+* The hackbox engine is run and the "troop ready" ouput datasets are created in @fixd@.
+
+* Note: Hackbox execution should be idempotent (when it is sensible and efficient), leveraging this behavior from @rake@.*
+
+h3. Hackboxen Best Practices
+
+One should try to avoid redundant computation.  In particular, idempotency of output creation should be observed.  Sometimes incrementally updated information makes this hard, but should be done if not too painful.
+
+Files read and written by the hackbox should use the @Swineherd::FileSystem@ abstraction. See "swineherd":http://github.com/infochimps/swineherd.
+
+Implementation of the @Gorillib::Receiver@ pattern is recommended. See "gorillib":http://github.com/infochimps/gorillib.
+
+Any and all output datasets must include an appropriately descriptive schema. See "icss":http://github.com/infochimps/icss.
+
+== Contributing to hackboxen
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2011 Infochimps. See LICENSE.txt for
+further details.
+
