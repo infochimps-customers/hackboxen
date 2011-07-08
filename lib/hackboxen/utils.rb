@@ -33,7 +33,7 @@ module HackBoxen
   end
 
   def self.name
-    hackbox_root? ? Dir.pwd.gsub(/#{WorkingConfig[:coderoot]}\/#{current}\//, '') : 'debug'
+    hackbox_root? ? Dir.pwd.gsub(/#{coderoot}\/#{current}\//, '') : 'debug'
   end
 
   def self.current
@@ -41,11 +41,11 @@ module HackBoxen
   end
 
   def self.coderoot
-    WorkingConfig[:coderoot]
+    WorkingConfig[:coderoot].gsub(/\/$/, '')
   end
 
   def self.dataroot
-    WorkingConfig[:dataroot]
+    WorkingConfig[:dataroot].gsub(/\/$/, '')
   end
 
 
