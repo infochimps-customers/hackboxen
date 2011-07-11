@@ -16,12 +16,13 @@ inputdir  = ARGV[0]
 outputdir = ARGV[1]
 
 #
-# Ruby example: read in the working_environment.json file in env/ into a ruby hash
+# Ruby example: read in the working_config.json file in env/ into a ruby hash
 # (same as a javascript associative array, a java hashmap, a python dictionary, etc)
 # called 'options' to access the configuration settings used to execute the Rakefile
 #
+require 'rubygems'
 require 'json'
-options = JSON.parse(File.read(File.join(inputdir, "env", "working_environment.json")))
+options = JSON.parse(File.read(File.join(inputdir, "env", "working_config.json")))
 
 #
 # If you require 'hackboxen' you can access the default paths utility method

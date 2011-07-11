@@ -58,7 +58,7 @@ The hackbox output directory is where all of the data that a hackbox acquires, r
                 ├── ripd
                 │   └── bnc_download.zip
                 └── env
-                    └── working_environment.json         
+                    └── working_config.json         
 </code></pre>
 
 * @fixd/@: **(required)** See the output interface described below.
@@ -66,7 +66,7 @@ The hackbox output directory is where all of the data that a hackbox acquires, r
 * @rawd/@: **(optional)** This will contain all intermediate data processing outputs.
 * @ripd/@: **(required)** This will contain virginal downloaded source data adhering to the directory structure from which it was pulled.
 * @env/@:  **(required)** This directory contains a file describing the environment in which the hackbox was run.
-** @working_environment.json@: **(required)** All runtime config metadata used to generate the schema and output data.
+** @working_config.json@: **(required)** All runtime config metadata used to generate the schema and output data.
 
 Engine and output directories are generally created dynamically and are not meant to be archival.
 
