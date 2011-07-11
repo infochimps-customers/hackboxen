@@ -40,6 +40,10 @@ h3. Version 0.1.1
 
 * A hackbox __name__ is now separate from a dataset __protocol__. Namespaces are still shared for organizational purposes, but a protocol directory is no longer created for the output. 
 
+h3. Version 0.1.3
+
+* The tasks @hb:endpoint@ and @hb:icss@ can now move multiple files, instead of just one.
+
 h3. Still Needing
 
 * Full spec coverage for the hackboxen library.
