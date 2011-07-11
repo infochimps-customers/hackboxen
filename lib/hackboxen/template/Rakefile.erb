@@ -13,7 +13,7 @@ task :get_data do
   #
 end
 
-task :default => ['hb:create_working_config', 'hb:icss', 'hb:endoint', :get_data, 'hb:init']
+task :default => ['hb:create_working_config', 'hb:icss', 'hb:endpoint', :get_data, 'hb:init']
 #
 # hb:create_working_config makes establishes all required directories and serializes out all
 # configuration options into env/working_config.json. This task is required.

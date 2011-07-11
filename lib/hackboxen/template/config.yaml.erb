@@ -4,7 +4,11 @@
 # during the execution of a hackbox should be put in here.
 #
 namespace: <%= namespace %>
-protocol: <%= protocol %>
 filesystem_scheme: file
 under_consideration: true # This flag is set to true for initial publishing, then removed when fully complete
 update_frequency: monthly # How often the data is refreshed
+requires:
+  language:
+    ruby: <%= ruby_version %>
+    gems:
+    - hackboxen: <%= hb_version %>

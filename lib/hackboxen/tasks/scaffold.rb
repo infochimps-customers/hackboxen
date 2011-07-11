@@ -7,17 +7,21 @@ machine_config = '/etc/hackbox/hackbox.yaml'
 install_config = File.join(ENV['HOME'], '.hackbox/hackbox.yaml')
 
 Settings.use :commandline, :config_file
-Settings.define :namespace, :required => true
-Settings.define :protocol,  :required => true
-Settings.define :coderoot,  :required => true
-Settings.define :targets,   :default  => 'catalog'
+Settings.define :namespace,    :required => true
+Settings.define :hackbox_name, :required => true
+Settings.define :protocol
+Settings.define :coderoot,     :required => true
+Settings.define :targets,      :default  => 'catalog'
 Settings.read(machine_config) if File.exists? machine_config
 Settings.read(install_config) if File.exists? install_config
 Settings.resolve!
 
+# Have the hackbox name be a default for the protocol if unspecified
+Settings[:protocol] = Settings[:hackbox_name] unless Settings[:protocol]
+
 # Hackbox directories to be created
 coderoot = Settings[:coderoot]
-hackbox  = File.join(coderoot, Settings[:namespace].gsub(/\./,'/'), Settings[:protocol])
+hackbox  = File.join(coderoot, Settings[:namespace].gsub(/\./,'/'), Settings[:hackbox_name])
 engine   = File.join(hackbox, 'engine')
 config   = File.join(hackbox, 'config')
 
@@ -34,12 +38,12 @@ templates   = File.join(hb_lib_dir, 'lib/hackboxen/template')
 
 # Create a basic endpoint if apeyeye was specified as a target
 file endpoint, [:config] => engine do |t, args|
-  HackBoxen::Template.new(File.join(templates, "endpoint.rb.erb"), endpoint, args[:config]).substitute!
+  HackBoxen::Template.new(File.join(templates, 'endpoint.rb.erb'), endpoint, args[:config]).substitute!
 end
 
 # Create a basic hackbox Rakefile
 file rakefile => hackbox do
-  HackBoxen::Template.new(File.join(templates, "Rakefile.erb"), rakefile, {}).substitute!
+  HackBoxen::Template.new(File.join(templates, 'Rakefile.erb'), rakefile, {}).substitute!
 end
 
 # Create a basic executable hackbox main file
@@ -50,8 +54,12 @@ end
 
 # Create a basic config file
 file config_yml => config do
-  basic_config = { 'namespace' => Settings[:namespace], 'protocol'  => Settings[:protocol] }
-  HackBoxen::Template.new(File.join(templates, "config.yaml.erb"), config_yml, basic_config).substitute!
+  basic_config = {
+    'namespace'    => Settings[:namespace],
+    'ruby_version' => RUBY_VERSION,
+    'hb_version'   => Gem.source_index.find_name('swineherd').first.version.to_s
+  }
+  HackBoxen::Template.new(File.join(templates, 'config.yaml.erb'), config_yml, basic_config).substitute!
 end
 
 # Create a basic icss file
@@ -62,7 +70,7 @@ file icss_yml => config do
     'protocol'  => Settings[:protocol],
     'targets'   => targets
   }
-  HackBoxen::Template.new(File.join(templates, "icss.yaml.erb"), icss_yml, basic_config).substitute!
+  HackBoxen::Template.new(File.join(templates, 'icss.yaml.erb'), icss_yml, basic_config).substitute!
   Rake::Task[endpoint].invoke(basic_config) if targets.include? 'apeyeye'
 end
 
