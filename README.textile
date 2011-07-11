@@ -124,9 +124,9 @@ The Hackboxen library depends on the following gems: "configliere":http://github
 
 h3. Creating a Hackbox
 
-Hackboxen comes with scaffold task that creates a template hackbox for you. Required arguments are @--namespace=@ and @--protocol=@. Optional arguments are @--targets=@.
+Hackboxen comes with scaffold task that creates a template hackbox for you. Required arguments are @--namespace=@ and @--hackbox_name=@. Optional arguments are @--protocol=@ and @--targets=@. The @protocol@ will default to the @hackbox_name@ unless otherwise specified. 
 
-<pre><code>hb-scaffold --namespace=foo.bar.baz --protocol=qux --targets=catalog,mysql
+<pre><code>hb-scaffold --namespace=foo.bar.baz --hackbox_name=qux --targets=catalog,mysql
 </code></pre>
 
 This will create the following directories and files:
