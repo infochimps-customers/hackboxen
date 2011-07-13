@@ -1,4 +1,4 @@
-INCLUDING_FILE = caller[2].gsub(/:.*$/, '')
+INCLUDING_FILE = caller[2].gsub(/:.*$/, '') unless defined?(INCLUDING_FILE)
 
 require 'rake'
 require 'swineherd'
