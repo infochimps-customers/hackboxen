@@ -2,13 +2,13 @@
 namespace: <%= namespace %>
 protocol: <%= protocol %>
 
-data_asset:
+data_assets:
 - name: <%= protocol %>_data_asset
   location: <%= protocol %>_data.tsv
   type: <%= protocol %>_data_record
   
 <% if targets.include? 'apeyeye' %>
-code_asset:
+code_assets:
 - name: <%= protocol %>_code_asset
   location: code/<%= protocol %>_endpoint.rb
 
