@@ -1,7 +1,8 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    configliere (0.4.6)
+    configliere (0.4.7)
+      json
     erubis (2.7.0)
     git (1.2.5)
     gorillib (0.1.1)
@@ -9,6 +10,7 @@ GEM
       bundler (~> 1.0.0)
       git (>= 1.2.5)
       rake
+    json (1.5.3)
     rake (0.9.2)
     rcov (0.9.9)
     right_aws (2.1.0)
@@ -26,7 +28,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.0.0)
-  configliere (= 0.4.6)
+  configliere (>= 0.4.6)
   jeweler (~> 1.5.2)
   rake (>= 0.8.7)
   rcov
