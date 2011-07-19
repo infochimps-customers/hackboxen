@@ -57,7 +57,7 @@ file config_yml => config do
   basic_config = {
     'namespace'    => Settings[:namespace],
     'ruby_version' => RUBY_VERSION,
-    'hb_version'   => Gem.source_index.find_name('swineherd').first.version.to_s
+    'hb_version'   => Gem.source_index.find_name('hackboxen').first.version.to_s
   }
   HackBoxen::Template.new(File.join(templates, 'config.yaml.erb'), config_yml, basic_config).substitute!
 end
