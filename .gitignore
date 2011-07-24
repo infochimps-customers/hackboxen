@@ -42,3 +42,7 @@ pkg
 *.rdb
 
 target
+
+.vendor
+.bundle
+Gemfile.lock
