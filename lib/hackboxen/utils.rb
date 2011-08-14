@@ -1,3 +1,4 @@
+require 'configliere'
 WorkingConfig  = Configliere::Param.new
 WorkingConfig.use :commandline, :config_file
 
@@ -8,6 +9,11 @@ module HackBoxen
   autoload :Logging,         'hackboxen/utils/logging'
 
   def self.find_root_dir
+    return ROOT_DIR if defined?(ROOT_DIR)
+
+    # FIXME: Using the INCLUDING_FILE is broken when installed as a gem
+    # should replace with
+    #   start_dir = File.expand_path('.')
     start_dir = File.dirname INCLUDING_FILE
     Dir.chdir start_dir
     until hackbox_root? Dir.pwd
@@ -20,7 +26,7 @@ module HackBoxen
     return Dir.pwd
   end
 
-  def self.hackbox_root? dir = Dir.pwd
+  def self.hackbox_root?(dir = Dir.pwd)
     %w[ engine config Rakefile ].each do |expected|
       return false unless Dir.entries(dir).include? expected
     end
@@ -59,4 +65,3 @@ module HackBoxen
     WorkingConfig.read cfg if current_fs.exists?(cfg)
   end
 end
-

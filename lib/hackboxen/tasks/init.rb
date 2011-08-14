@@ -28,12 +28,12 @@ module HackBoxen
     desc "Always save the WorkingConfig out to a file when running a hackbox"
     task :create_working_config => [:create_required_paths] do
       working_config = File.join(path_to(:env_dir), 'working_config.json')
-      HackBoxen.current_fs.open(working_config, 'w') { |f| f.write WorkingConfig.to_hash.to_json }
+      HackBoxen.current_fs.open(working_config, 'w'){|f| f.write WorkingConfig.to_hash.to_json }
     end
 
     desc "Execute the main file inside of the current hackbox directory"
     task :init => [:create_working_config] do
-      main_file     = File.join(path_to(:hb_engine), 'main')
+      main_file     = path_to(:hb_engine, 'main')
       sh "#{main_file} #{path_to(:hb_dataroot)} #{path_to(:data_dir)}" do |ok,res|
         if !ok
           puts "Processing script failed with #{res}"
