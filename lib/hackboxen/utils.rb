@@ -4,9 +4,7 @@ WorkingConfig.use :commandline, :config_file
 
 module HackBoxen
 
-  autoload :ConfigValidator, 'hackboxen/utils/config_validator'
   autoload :Paths,           'hackboxen/utils/paths'
-  autoload :Logging,         'hackboxen/utils/logging'
 
   def self.find_root_dir
     return ROOT_DIR if defined?(ROOT_DIR)
