@@ -2,8 +2,9 @@ require 'pathname'
 
 module HackBoxen
   module Paths
-    module_function
 
+    DEFAULT_PATHS = default_paths unless const_defined? DEFAULT_PATHS
+    
     def paths
       @paths ||= default_paths
     end
